@@ -4,6 +4,8 @@ import App from "./App";
 import { ThemeProvider, createGlobalStyle } from "styled-components";
 import { theme } from "./theme";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { RecoilRoot, useRecoilState, useRecoilValue } from "recoil";
+import { boxOpenState } from "./atom";
 
 const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
@@ -75,12 +77,14 @@ const client = new QueryClient();
 
 ReactDOM.render(
   <React.StrictMode>
-    <QueryClientProvider client={client}>
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        <App />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <RecoilRoot>
+      <QueryClientProvider client={client}>
+        <ThemeProvider theme={theme}>
+          <GlobalStyle />
+          <App />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </RecoilRoot>
   </React.StrictMode>,
   document.getElementById("root")
 );
