@@ -1,23 +1,18 @@
-import { useMutation, useQuery } from "react-query";
+import { useQuery } from "react-query";
 import {
   getMovies,
-  getPopularMovies,
   IGetMoviesResult,
-  IGetPopularMoviesResult,
   getMovieVideo,
   IGetMovieVideo,
 } from "../api";
-import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
+import { motion } from "framer-motion";
 import styled from "styled-components";
 import { makeImagePath } from "./utils";
-import { useEffect, useState } from "react";
-import { useMatch, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import NowPlaying from "../Components/Movie/NowPlaying";
 import PopularMovie from "../Components/Movie/PopularMovie";
 import TopRatedMovie from "../Components/Movie/TopRatedMovie";
 import UpComingMovie from "../Components/Movie/UpComingMovie";
-import { useRecoilState } from "recoil";
-import { boxOpenState } from "../atom";
 
 const Wrapper = styled.div`
   overflow: hidden;
@@ -30,7 +25,6 @@ const Loader = styled.div`
   justify-content: center;
   align-items: center;
 `;
-
 const Banner = styled.div<{ bgphoto: string }>`
   height: 100vh;
   display: flex;
@@ -84,8 +78,6 @@ const Video = styled.iframe`
   height: 315px;
   z-index: 0;
 `;
-
-const offset = 6;
 
 function Home() {
   const history = useNavigate();

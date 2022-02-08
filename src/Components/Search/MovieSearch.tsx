@@ -1,23 +1,9 @@
-import { useQuery } from "react-query";
-import {
-  getMovieDetail,
-  getMovies,
-  IGetMovieSearch,
-  IGetMoviesResult,
-} from "../../api";
-import {
-  animate,
-  AnimatePresence,
-  motion,
-  useViewportScroll,
-} from "framer-motion";
+import { IGetMovieSearch } from "../../api";
+import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
 import styled from "styled-components";
 import { makeImagePath } from "../../Routes/utils";
-import { useEffect, useState } from "react";
-import { useMatch, useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import { boxOpenState } from "../../atom";
-import Detail from "../Movie/DetailMovie";
+import { useState } from "react";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
 import {
   BigTitle,
   BigMovie,
@@ -26,6 +12,7 @@ import {
   BigDay,
   Overlay,
 } from "../Movie/NowPlaying";
+import DetailMovieSearch from "./DetailMovieSearch";
 
 const Wrapper = styled.div`
   position: relative;
@@ -137,9 +124,18 @@ const infoVariants = {
   },
 };
 
-function MovieSearch({ data }: { data: IGetMovieSearch }) {
+function MovieSearch({
+  data,
+  keyword,
+}: {
+  data: IGetMovieSearch;
+  keyword: string | null;
+}) {
   const offset = 6;
+  const location = useLocation();
+  console.log(location);
   const history = useNavigate();
+  const onOverlayClick = () => history(`/search${location.search}`);
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving1 = () => setLeaving((prev) => !prev);
   const [back, setBack] = useState(false);
@@ -166,9 +162,9 @@ function MovieSearch({ data }: { data: IGetMovieSearch }) {
   };
 
   const onBoxClicked = (movieId: number) => {
-    history(`/movies/1/${movieId}`);
+    history(`/search/${movieId}${location.search}`);
   };
-  const bigMovieMatch = useMatch("movies/1/:movieId");
+  const bigMovieMatch = useMatch(`search/:movieId/*`);
   const movieId = bigMovieMatch?.params.movieId;
   const { scrollY } = useViewportScroll();
   const clickedMovie =
@@ -178,7 +174,7 @@ function MovieSearch({ data }: { data: IGetMovieSearch }) {
     );
   return (
     <Wrapper>
-      <Title>Movie Results</Title>
+      <Title>Movie Results: {keyword}</Title>
       <Slider>
         <RArrow
           onClick={increaseIndex}
@@ -244,6 +240,36 @@ function MovieSearch({ data }: { data: IGetMovieSearch }) {
           </Row>
         </AnimatePresence>
       </Slider>
+      <AnimatePresence>
+        {bigMovieMatch ? (
+          <>
+            <Overlay
+              onClick={onOverlayClick}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+            <BigMovie
+              style={{ top: scrollY.get() - 200 }}
+              layoutId={bigMovieMatch?.params.movieId + "1"}
+            >
+              {clickedMovie && (
+                <>
+                  <BigCover
+                    bgPhoto={makeImagePath(clickedMovie.backdrop_path)}
+                  />
+                  <BigTitle>{clickedMovie.title}</BigTitle>
+                  <BigRate>{clickedMovie.vote_average}</BigRate>
+                  <BigDay>{`${clickedMovie.release_date.slice(
+                    0,
+                    4
+                  )}년`}</BigDay>
+                  <DetailMovieSearch id={movieId} />
+                </>
+              )}
+            </BigMovie>
+          </>
+        ) : null}
+      </AnimatePresence>
     </Wrapper>
   );
 }

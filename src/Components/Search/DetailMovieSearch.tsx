@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { getTvDetail, IGetTvDetail } from "../../api";
+import { getMovieDetail, IGetMovieDetail } from "../../api";
 import styled from "styled-components";
 import { makeImagePath } from "../../Routes/utils";
 
@@ -52,11 +52,13 @@ const Logo = styled.div<{ logo: string }>`
   background-size: contain;
 `;
 
-function Detail({ id }: { id: any }) {
-  const tvId = parseInt(id);
-  const { data, isLoading } = useQuery<IGetTvDetail>(["moviesDetail", id], () =>
-    getTvDetail(tvId)
+function DetailMovieSearch({ id }: { id: any }) {
+  const movieId = parseInt(id);
+  const { data, isLoading } = useQuery<IGetMovieDetail>(
+    ["moviesDetail", id],
+    () => getMovieDetail(movieId)
   );
+
   return (
     <>
       {isLoading ? (
@@ -68,9 +70,9 @@ function Detail({ id }: { id: any }) {
               index === data.genres.length - 1 ? a.name : `${a.name} / `
             )}
           </Genre>
-          <RunTime>{`${
-            data ? Math.floor(data.episode_run_time[0] / 60) : ""
-          }시간 ${data ? data.episode_run_time[0] % 60 : ""}분`}</RunTime>
+          <RunTime>{`${data ? Math.floor(data?.runtime / 60) : ""}시간 ${
+            data ? data.runtime % 60 : ""
+          }분`}</RunTime>
           <HomePage href={data?.homepage} target="_blank">
             <span role="img" aria-label="homepage">
               🖥️
@@ -109,4 +111,4 @@ function Detail({ id }: { id: any }) {
   );
 }
 
-export default Detail;
+export default DetailMovieSearch;

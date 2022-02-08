@@ -3,7 +3,7 @@ import { getPopularMovies, IGetPopularMoviesResult } from "../../api";
 import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
 import styled from "styled-components";
 import { makeImagePath } from "../../Routes/utils";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMatch, useNavigate } from "react-router-dom";
 import Detail from "./DetailMovie";
 import {

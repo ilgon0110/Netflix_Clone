@@ -1,17 +1,10 @@
 import { useQuery } from "react-query";
-import { getMovieDetail, getMovies, IGetMoviesResult } from "../../api";
-import {
-  animate,
-  AnimatePresence,
-  motion,
-  useViewportScroll,
-} from "framer-motion";
+import { getMovies, IGetMoviesResult } from "../../api";
+import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
 import styled from "styled-components";
 import { makeImagePath } from "../../Routes/utils";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMatch, useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import { boxOpenState } from "../../atom";
 import Detail from "./DetailMovie";
 
 const offset = 6;

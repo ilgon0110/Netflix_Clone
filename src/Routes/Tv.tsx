@@ -1,28 +1,18 @@
-import { useMutation, useQuery } from "react-query";
+import { useQuery } from "react-query";
 import {
-  getMovies,
-  getPopularMovies,
-  IGetMoviesResult,
-  IGetPopularMoviesResult,
   getMovieVideo,
   IGetMovieVideo,
   getTvAiringToday,
   IGetTvAiringToday,
-  getTvVideo,
 } from "../api";
-import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
+import { motion } from "framer-motion";
 import styled from "styled-components";
 import { makeImagePath } from "./utils";
-import { useEffect, useState } from "react";
-import { useMatch, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AiringToday from "../Components/Tv/AiringToday";
 import PopularTv from "../Components/Tv/PopularTv";
 import TopRatedTv from "../Components/Tv/TopRatedTv";
 import OnTheAirTv from "../Components/Tv/OnTheAirTv";
-import { constSelector, useRecoilState } from "recoil";
-import { boxOpenState } from "../atom";
-import LoadingTest from "./LoadingTest";
-import { json } from "stream/consumers";
 
 const Wrapper = styled.div`
   overflow: hidden;
@@ -35,7 +25,6 @@ const Loader = styled.div`
   justify-content: center;
   align-items: center;
 `;
-
 const Banner = styled.div<{ bgphoto: string }>`
   height: 100vh;
   display: flex;
@@ -90,22 +79,19 @@ const Video = styled.iframe`
   z-index: 0;
 `;
 
-const offset = 6;
-
 function TV() {
   const history = useNavigate();
-  const [index, setIndex] = useState(0);
   const { data, isLoading } = useQuery<IGetTvAiringToday>(
     ["tv", "airingToday"],
     async () => await getTvAiringToday()
   );
-  const tvId = data?.results[index].id;
+  const tvId = data?.results[0].id;
 
   const { data: tvData, isLoading: tvLoading } = useQuery<IGetMovieVideo>(
     ["movies", tvId],
     () => getMovieVideo(tvId)
   );
-  console.log(tvData);
+
   const onBoxClicked = (tvId: number) => {
     history(`/tv/1/${tvId}`);
   };
@@ -119,7 +105,7 @@ function TV() {
         <>
           <Wrapper>
             <Banner
-              bgphoto={makeImagePath(data?.results[index].backdrop_path || "")}
+              bgphoto={makeImagePath(data?.results[0].backdrop_path || "")}
             >
               {tvData?.success === false ? null : tvData?.results.length ===
                 0 ? null : (
@@ -131,7 +117,7 @@ function TV() {
                   allowFullScreen
                 ></Video>
               )}
-              <Title>{data?.results[index].name}</Title>
+              <Title>{data?.results[0].name}</Title>
               {tvId ? <Play onClick={() => onBoxClicked(tvId)}></Play> : null}
               {tvId ? (
                 <DetailBtn onClick={() => onBoxClicked(tvId)}>

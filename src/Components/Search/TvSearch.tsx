@@ -1,24 +1,10 @@
-import { useQuery } from "react-query";
-import {
-  getMovieDetail,
-  getMovies,
-  IGetMovieSearch,
-  IGetMoviesResult,
-  IGetTvSearch,
-} from "../../api";
-import {
-  animate,
-  AnimatePresence,
-  motion,
-  useViewportScroll,
-} from "framer-motion";
+import { IGetTvSearch } from "../../api";
+import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
 import styled from "styled-components";
 import { makeImagePath } from "../../Routes/utils";
-import { useEffect, useState } from "react";
-import { useMatch, useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import { boxOpenState } from "../../atom";
-import Detail from "../Movie/DetailMovie";
+import { useState } from "react";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
+import DetailTvSearch from "./DetailTvSearch";
 import {
   BigTitle,
   BigMovie,
@@ -138,9 +124,17 @@ const infoVariants = {
   },
 };
 
-function TvSearch({ data }: { data: IGetTvSearch }) {
+function TvSearch({
+  data,
+  keyword,
+}: {
+  data: IGetTvSearch;
+  keyword: string | null;
+}) {
   const offset = 6;
   const history = useNavigate();
+  const location = useLocation();
+  const onOverlayClick = () => history(`/search${location.search}`);
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving1 = () => setLeaving((prev) => !prev);
   const [back, setBack] = useState(false);
@@ -166,20 +160,20 @@ function TvSearch({ data }: { data: IGetTvSearch }) {
     }
   };
 
-  const onBoxClicked = (movieId: number) => {
-    history(`/movies/1/${movieId}`);
+  const onBoxClicked = (tvId: number) => {
+    history(`/search/${tvId}${location.search}`);
   };
-  const bigMovieMatch = useMatch("movies/1/:movieId");
-  const movieId = bigMovieMatch?.params.movieId;
+  const bigMovieMatch = useMatch(`search/:tvId/*`);
+  const tvId = bigMovieMatch?.params.tvId;
   const { scrollY } = useViewportScroll();
   const clickedMovie =
-    bigMovieMatch?.params.movieId &&
+    bigMovieMatch?.params.tvId &&
     data?.results.find(
-      (movie) => String(movie.id) === bigMovieMatch.params.movieId
+      (movie) => String(movie.id) === bigMovieMatch.params.tvId
     );
   return (
     <Wrapper>
-      <Title>Tv Results</Title>
+      <Title>Tv Results: {keyword}</Title>
       <Slider>
         <RArrow
           onClick={increaseIndex}
@@ -226,7 +220,7 @@ function TvSearch({ data }: { data: IGetTvSearch }) {
               .slice(offset * index, offset * index + offset)
               .map((movie) => (
                 <Box
-                  layoutId={movie.id.toString() + "1"}
+                  layoutId={movie.id.toString() + "2"}
                   variants={boxVariants}
                   whileHover="hover"
                   initial="normal"
@@ -245,6 +239,40 @@ function TvSearch({ data }: { data: IGetTvSearch }) {
           </Row>
         </AnimatePresence>
       </Slider>
+      <AnimatePresence>
+        {bigMovieMatch ? (
+          <>
+            <Overlay
+              onClick={onOverlayClick}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+            <BigMovie
+              style={{ top: scrollY.get() - 500 }}
+              layoutId={bigMovieMatch?.params.tvId + "2"}
+            >
+              {clickedMovie && (
+                <>
+                  <BigCover
+                    bgPhoto={makeImagePath(
+                      clickedMovie.backdrop_path
+                        ? clickedMovie.backdrop_path
+                        : clickedMovie.poster_path
+                    )}
+                  />
+                  <BigTitle>{clickedMovie.name}</BigTitle>
+                  <BigRate>{clickedMovie.vote_average}</BigRate>
+                  <BigDay>{`${clickedMovie.first_air_date.slice(
+                    0,
+                    4
+                  )}년`}</BigDay>
+                  <DetailTvSearch id={tvId} />
+                </>
+              )}
+            </BigMovie>
+          </>
+        ) : null}
+      </AnimatePresence>
     </Wrapper>
   );
 }

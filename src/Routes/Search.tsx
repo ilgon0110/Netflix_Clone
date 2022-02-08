@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import { useQuery } from "react-query";
 import { useLocation } from "react-router-dom";
-import { resourceLimits } from "worker_threads";
 import {
   getMovieSearch,
   getTvSearch,
@@ -10,6 +8,11 @@ import {
 } from "../api";
 import MovieSearch from "../Components/Search/MovieSearch";
 import TvSearch from "../Components/Search/TvSearch";
+import styled from "styled-components";
+
+const NoResult = styled.div`
+  margin-top: 300px;
+`;
 
 function Search() {
   const location = useLocation();
@@ -18,16 +21,23 @@ function Search() {
     ["movieSearch", keyword],
     () => getMovieSearch(keyword)
   );
-  console.log(data);
+
   const { data: tvData, isLoading: tvLoading } = useQuery<IGetTvSearch>(
     ["tvSearch", keyword],
     () => getTvSearch(keyword)
   );
-  console.log(tvData);
   return (
     <>
-      {isLoading ? null : data ? <MovieSearch data={data} /> : null}
-      {tvLoading ? null : tvData ? <TvSearch data={tvData} /> : null}
+      {isLoading ? null : data && data.results.length !== 0 ? (
+        <MovieSearch data={data} keyword={keyword} />
+      ) : (
+        <NoResult>No Result of {keyword}</NoResult>
+      )}
+      {tvLoading ? null : tvData && tvData.results.length !== 0 ? (
+        <TvSearch data={tvData} keyword={keyword} />
+      ) : (
+        <NoResult>No Result of {keyword}</NoResult>
+      )}
     </>
   );
 }
